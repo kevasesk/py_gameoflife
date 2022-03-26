@@ -1,16 +1,108 @@
-# This is a sample Python script.
+import pygame, random, sys
+from time import sleep
+pygame.init()
+pygame.font.init()
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+screenX = 1000
+screenY = 1000
+cellSize = 3
+cellColorAlive = (0,0,0)
+cellColorDead  = (255,255,255)
+pygame.display.set_caption('Game of life')
+screen = pygame.display.set_mode([screenX, screenY])
+
+cells = [
+    [random.randint(0, 1) for _ in range(int(screenX/cellSize))]
+    for _ in range(int(screenY/cellSize))
+]
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+def drawCell(x, y, isEmpty = False):
+    if screenX > x * cellSize >= 0 and screenY > y * cellSize >= 0:
+        if isEmpty:
+            pygame.draw.rect(screen, cellColorDead, (x * cellSize, y * cellSize, cellSize, cellSize), 0)
+        else:
+            pygame.draw.rect(screen, cellColorAlive, (x * cellSize, y * cellSize, cellSize, cellSize), 0)
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+def clear():
+    screen.fill((255, 255, 255))
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+def canMakeLife(x, y):
+    global cells
+    totalAlifeAround = 0
+    for i in [x-1, x, x+1]:
+        for j in [y-1, y, y+1]:
+            try:
+                if cells[i][j] != 0 and (i != x or j != y):
+                    totalAlifeAround = totalAlifeAround + 1
+            except IndexError:
+                pass
+
+
+    if cells[x][y] == 0:
+        if totalAlifeAround == 3:
+            return True
+        else:
+            return False
+    else:
+        if totalAlifeAround == 3 or totalAlifeAround == 2:
+            return True
+        else:
+            return False
+
+
+
+
+running = True
+iterations = 0
+while running:
+    iterations = iterations + 1
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    clear()
+    nextCells = [
+        [0 for _ in range(int(screenX / cellSize))]
+        for _ in range(int(screenY / cellSize))
+    ]
+
+    #random
+    # for i in range(len(nextCells)):
+    #     for j in range(len(nextCells[i])):
+    #         rnd = random.randint(0, 10)
+    #         if rnd == 1:
+    #             cells[i][j] = 1
+
+    #rules
+    for i in range(len(cells)):
+        for j in range(len(cells[i])):
+            if canMakeLife(i, j):
+                nextCells[i][j] = 1
+            else:
+                nextCells[i][j] = 0
+
+    #draw cells
+    for i in range(len(nextCells)):
+        for j in range(len(nextCells[i])):
+            if nextCells[i][j] != 0:
+                drawCell(i, j)
+            else:
+                drawCell(i, j, True)
+
+    cells = nextCells
+    #if iterations == 1:
+    pygame.display.flip()
+    sleep(0.01)
+
+
+    # if iterations < -1:
+    #     s = [[str(e) for e in row] for row in cells]
+    #     lens = [max(map(len, col)) for col in zip(*s)]
+    #     fmt = '\t'.join('{{:{}}}'.format(x) for x in lens)
+    #     table = [fmt.format(*row) for row in s]
+    #     print('\n'.join(table))
+    #     print('------------')
+
+pygame.quit()
