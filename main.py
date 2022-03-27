@@ -125,3 +125,5 @@ while running:
     #     print('------------')
 
 pygame.quit()
+
+# https://copy.sh/life/ - good online game of life with patterns
