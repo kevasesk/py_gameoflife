@@ -5,14 +5,14 @@ pygame.font.init()
 
 screenX = 1000
 screenY = 1000
-cellSize = 3
+cellSize = 4
 cellColorAlive = (0,0,0)
 cellColorDead  = (255,255,255)
 pygame.display.set_caption('Game of life')
 screen = pygame.display.set_mode([screenX, screenY])
 
 cells = [
-    [random.randint(0, 1) for _ in range(int(screenX/cellSize))]
+    [random.randint(0, 2) for _ in range(int(screenX/cellSize))]
     for _ in range(int(screenY/cellSize))
 ]
 
@@ -52,7 +52,7 @@ def canMakeLife(x, y):
             return False
 
 
-
+drawingEvent = False
 
 running = True
 iterations = 0
@@ -61,6 +61,25 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.MOUSEMOTION:
+            if drawingEvent:
+                pos = pygame.mouse.get_pos()
+                cellX, cellY = pos
+                cellX = int(cellX/cellSize)
+                cellY = int(cellY/cellSize)
+                cells[cellX][cellY] = 1
+                cells[cellX - 1][cellY - 1] = 1
+                cells[cellX - 1][cellY + 1] = 1
+                cells[cellX - 1][cellY + 2] = 1
+                cells[cellX + 1][cellY + 2] = 1
+                print('drawing')
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            drawingEvent = True
+            print('trigger down')
+        if event.type == pygame.MOUSEBUTTONUP:
+            drawingEvent = False
+            print('trigger up')
 
     clear()
     nextCells = [
